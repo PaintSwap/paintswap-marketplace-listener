@@ -32,6 +32,6 @@ h1 {
 }
 
 p {
-  margin: 8px 0 0 0;
+  margin: 16px 0 0 0;
   font-size: calc(10px + 1.5vmin);
 }

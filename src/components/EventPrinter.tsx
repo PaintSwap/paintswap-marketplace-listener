@@ -82,6 +82,7 @@ const FeedContainer = styled.div`
   width: 100%;
   background-color: #131318;
   border-radius: 20px;
+  padding-bottom: 24px;
 `
 
 const Feed = styled.div`
@@ -157,13 +158,11 @@ const EventPrinter = () => {
       setSoldFeed([...feed])
 
       const chartFeed = chartVolume || []
-      let newVolume = chartVolumeTotal
-      newVolume += getBalanceNumber(item.priceTotal)
       chartFeed.push({
         time: timeConverter(Date.now() / 1000),
-        volume: newVolume,
+        volume: chartVolumeTotal + getBalanceNumber(item.priceTotal),
       })
-      setChartVolumeTotal(newVolume)
+      setChartVolumeTotal(chartVolumeTotal + getBalanceNumber(item.priceTotal))
       setChartVolume([...chartFeed])
     })
 
