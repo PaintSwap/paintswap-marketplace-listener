@@ -6,7 +6,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <img src="/logo_white.png" alt="Paintswap logo" className="App-logo" />
+        <img src="./logo_white.png" alt="logo" className="App-logo" />
         <h1>
           NFT Live Events
         </h1>

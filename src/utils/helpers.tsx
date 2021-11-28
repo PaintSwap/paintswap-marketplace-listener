@@ -25,5 +25,5 @@ export const timeConverter = (timestamp: number) => {
   const hour = a.getHours()
   const min = a.getMinutes()
   const sec = a.getSeconds()
-  return date + '-' + month + '-' + year + '-' + hour + ':' + min + ':' + sec
+  return month + ' ' + date + ' - ' + year + ' | ' + hour + ':' + min
 }

@@ -17,6 +17,7 @@ const ChartContainer = styled.div`
 
 const StyledCard = styled.div`
   display: flex;
+  flex-direction: column;
   border-radius: 20px;
   background-color: #161326;
   border: 1px solid #595da1;
@@ -36,9 +37,9 @@ const EmptyInfo = styled.div`
 `
 
 const SpanHeader = styled.span`
-  margin-top: 14px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
+  margin-bottom: 8px;
 `
 const SpanMain = styled.span`
   font-size: 12px;
