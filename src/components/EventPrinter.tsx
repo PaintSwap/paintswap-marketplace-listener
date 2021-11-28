@@ -128,6 +128,8 @@ const Divider = styled.div`
 `
 
 const EventPrinter = () => {
+  const [init, setInit] = React.useState(false)
+
   const [listingFeed, setListingFeed] = React.useState<Array<NewListing>>([])
   const [soldFeed, setSoldFeed] = React.useState<Array<Sold>>([])
   const [unsoldFeed, setUnsoldFeed] = React.useState<Array<UnsoldExtended>>([])
@@ -141,79 +143,82 @@ const EventPrinter = () => {
   const [chartVolume, setChartVolume] = React.useState<Array<any>>([])
 
   useEffect(() => {
-    console.log("Start listening")
-    marketplace.onNewListing((item) => {
-      console.log('New listing!\n', item)
+    if (!init) {
+      console.log("Start listening")
+      marketplace.onNewListing((item) => {
+        console.log('New listing!\n', item)
 
-      const feed: Array<NewListing> = listingFeed || []
-      feed.unshift(item)
-      setListingFeed([...feed])
-    })
-  
-    marketplace.onSold((item) => {
-      console.log('Sold!\n', item)
-
-      const feed: Array<Sold> = soldFeed || []
-      feed.unshift(item)
-      setSoldFeed([...feed])
-
-      const chartFeed = chartVolume || []
-      chartFeed.push({
-        time: timeConverter(Date.now() / 1000),
-        volume: chartVolumeTotal + getBalanceNumber(item.priceTotal),
+        const feed: Array<NewListing> = listingFeed || []
+        feed.unshift(item)
+        setListingFeed([...feed])
       })
-      setChartVolumeTotal(chartVolumeTotal + getBalanceNumber(item.priceTotal))
-      setChartVolume([...chartFeed])
-    })
+    
+      marketplace.onSold((item) => {
+        console.log('Sold!\n', item)
 
-    marketplace.onUnsold((item, cancelled) => {
-      const feed: Array<UnsoldExtended> = unsoldFeed || []
-      
-      if (cancelled) {
-          console.log('Cancelled sale\n', item)
-          const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: true});
-          feed.unshift(itemExt)
-      }
-      else {
-          console.log('Failed to sell\n', item)
-          const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: false});
-          feed.unshift(itemExt)
-      }
-      setUnsoldFeed([...feed])
-    })
+        const feed: Array<Sold> = soldFeed || []
+        feed.unshift(item)
+        setSoldFeed([...feed])
 
-    marketplace.onPriceUpdate((item) => {
-      console.log('Price updated\n', item)
-  
-      const feed: Array<BundlePriceUpdate> = priceUpdateFeed || []
-      feed.unshift(item)
-      setPriceUpdateFeed([...feed])
-    })
-  
-    marketplace.onNewBid((bid) => {
-      console.log('New bid\n', bid)
+        const chartFeed = chartVolume || []
+        chartFeed.push({
+          time: timeConverter(Date.now() / 1000),
+          volume: chartVolumeTotal + getBalanceNumber(item.priceTotal),
+        })
+        setChartVolumeTotal(c => c + getBalanceNumber(item.priceTotal))
+        setChartVolume([...chartFeed])
+      })
 
-      const feed: Array<NewBid> = bidFeed || []
-      feed.unshift(bid)
-      setBidFeed([...feed])
-    })
-  
-    marketplace.onNewOffer((offer) => {
-      console.log('New offer\n', offer)
+      marketplace.onUnsold((item, cancelled) => {
+        const feed: Array<UnsoldExtended> = unsoldFeed || []
+        
+        if (cancelled) {
+            console.log('Cancelled sale\n', item)
+            const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: true});
+            feed.unshift(itemExt)
+        }
+        else {
+            console.log('Failed to sell\n', item)
+            const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: false});
+            feed.unshift(itemExt)
+        }
+        setUnsoldFeed([...feed])
+      })
 
-      const feed: Array<NewOffer> = offerFeed || []
-      feed.unshift(offer)
-      setOfferFeed([...feed])
-    })
+      marketplace.onPriceUpdate((item) => {
+        console.log('Price updated\n', item)
+    
+        const feed: Array<BundlePriceUpdate> = priceUpdateFeed || []
+        feed.unshift(item)
+        setPriceUpdateFeed([...feed])
+      })
+    
+      marketplace.onNewBid((bid) => {
+        console.log('New bid\n', bid)
 
-    marketplace.onDurationExtended((extension) => {
-      console.log('Auction duration extended\n', extension)
+        const feed: Array<NewBid> = bidFeed || []
+        feed.unshift(bid)
+        setBidFeed([...feed])
+      })
+    
+      marketplace.onNewOffer((offer) => {
+        console.log('New offer\n', offer)
 
-      const feed: Array<DurationExtended> = durationExtendedFeed || []
-      feed.unshift(extension)
-      setDurationExtendedFeed([...feed])
-    })
-  }, [])
+        const feed: Array<NewOffer> = offerFeed || []
+        feed.unshift(offer)
+        setOfferFeed([...feed])
+      })
+
+      marketplace.onDurationExtended((extension) => {
+        console.log('Auction duration extended\n', extension)
+
+        const feed: Array<DurationExtended> = durationExtendedFeed || []
+        feed.unshift(extension)
+        setDurationExtendedFeed([...feed])
+      })
+    }
+    setInit(true)
+  }, [init, listingFeed, soldFeed, unsoldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolumeTotal, chartVolume])
 
   return (
     <Body>
