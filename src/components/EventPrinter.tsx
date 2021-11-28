@@ -224,14 +224,14 @@ const EventPrinter = () => {
           <Feed>
             {listingFeed && listingFeed.map((item: NewListing, index: number) => (
                 <FeedSection key={index}>
-                  <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                   <SectionRow>
                     <SpanMain>Collection</SpanMain>
-                    <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank">{short(item.collection.toLowerCase())}</a></SpanMain>
+                    <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Token ID</SpanMain>
-                    <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank">{item.tokenID.toString()}</a></SpanMain>
+                    <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Type</SpanMain>
@@ -268,14 +268,14 @@ const EventPrinter = () => {
           <Feed>
             {soldFeed && soldFeed.map((item: Sold, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>Collection</SpanMain>
-                  <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank">{short(item.collection.toLowerCase())}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Token ID</SpanMain>
-                  <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank">{item.tokenID.toString()}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Amount</SpanMain>
@@ -304,18 +304,18 @@ const EventPrinter = () => {
           <Feed>
             {unsoldFeed && unsoldFeed.map((item: UnsoldExtended, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>Reason</SpanMain>
                   <SpanMain>{item.cancelled ? 'Cancelled' : 'Expired'}</SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Collection</SpanMain>
-                  <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank">{short(item.collection.toLowerCase())}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Token ID</SpanMain>
-                  <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank">{item.tokenID.toString()}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -332,7 +332,7 @@ const EventPrinter = () => {
           <Feed>
             {priceUpdateFeed && priceUpdateFeed.map((item: BundlePriceUpdate, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>New Price</SpanMain>
                   <SpanMain>{getBalanceNumber(item.price)}</SpanMain>
@@ -352,10 +352,10 @@ const EventPrinter = () => {
           <Feed>
             {bidFeed && bidFeed.map((item: NewBid, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>Bidder</SpanMain>
-                  <SpanMain><a href={`${mainUrl}user/${item.bidder.toLowerCase()}`} target="_blank">{short(item.bidder)}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}user/${item.bidder.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.bidder)}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Bid</SpanMain>
@@ -380,10 +380,10 @@ const EventPrinter = () => {
           <Feed>
             {offerFeed && offerFeed.map((item: NewOffer, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>Offerer</SpanMain>
-                  <SpanMain><a href={`${mainUrl}user/${item.offerrer.toLowerCase()}`} target="_blank">{short(item.offerrer)}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}user/${item.offerrer.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.offerrer)}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Offer</SpanMain>
@@ -408,7 +408,7 @@ const EventPrinter = () => {
           <Feed>
             {durationExtendedFeed && durationExtendedFeed.map((item: DurationExtended, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>End Time</SpanMain>
                   <SpanMain>{timeConverter(item.endTime.toNumber())}</SpanMain>
