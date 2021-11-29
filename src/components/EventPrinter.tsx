@@ -70,6 +70,13 @@ const ListContainer = styled.div`
   }
 `
 
+const ChartArea = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-gap: 60px;
+  width: 100%;
+`
+
 const FeedContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -86,7 +93,7 @@ const Feed = styled.div`
   width: 100%;
   overflow-x: hidden;
   overflow-y: visible;
-  height: 600px;
+  max-height: 550px;
 `
 
 const FeedSection = styled.div`
@@ -158,6 +165,8 @@ const EventPrinter = () => {
         chartFeed.push({
           time: timeConverter(Date.now() / 1000),
           volume: getBalanceNumber(item.priceTotal) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
+          id: item.marketplaceId.toString(),
+          price: getBalanceNumber(item.priceTotal)
         })
         setChartVolume([...chartFeed])
       })
@@ -400,7 +409,8 @@ const EventPrinter = () => {
           </Feed>
         </FeedContainer>
 
-        {/** AUCTIONS EXTENDED */}
+        {/** AUCTIONS EXTENDED - Hidden for now due to low activity*/}
+        {/** 
         <FeedContainer>
         <p>AUCTIONS EXTENDED</p>
           <Feed>
@@ -419,8 +429,11 @@ const EventPrinter = () => {
             )}
           </Feed>
         </FeedContainer>
+        */}
       </ListContainer>
-      <ChartCard volume={chartVolume} />
+      <ChartArea>
+        <ChartCard volume={chartVolume} />
+      </ChartArea>
     </Body>
   )
 }

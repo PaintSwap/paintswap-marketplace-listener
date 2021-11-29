@@ -1,17 +1,15 @@
 /* eslint-disable camelcase */
 import React from 'react'
 import styled from 'styled-components'
-import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { Area, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, ComposedChart, Line, Legend } from 'recharts'
 
 const ChartContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 16px;
-  width: 80%;
   background-color: #131318;
   border-radius: 20px;
-  padding: 32px;
-  margin-top: 80px;
+  padding: 16px;
+  margin-top: 60px;
   position: relative;
 `
 
@@ -44,6 +42,7 @@ const SpanHeader = styled.span`
 const SpanMain = styled.span`
   font-size: 12px;
   color: #7d8fd1;
+  margin-bottom: 4px;
 `
 
 interface Props {
@@ -59,7 +58,9 @@ const ChartCard: React.FC<Props> = ({
       return (
         <StyledCard>
           <SpanHeader>{label}</SpanHeader>
-          <SpanMain>{`Volume: ${payload[0].payload.volume}`}</SpanMain>
+          <SpanMain>{`NFT ID: ${payload[0].payload.id}`}</SpanMain>
+          <SpanMain>{`NFT Price: ${payload[0].payload.price}`}</SpanMain>
+          <SpanMain>{`Tot. Volume: ${payload[0].payload.volume}`}</SpanMain>
         </StyledCard>
       )
     }
@@ -73,14 +74,22 @@ const ChartCard: React.FC<Props> = ({
       <SpanHeader>
         Volume Sold Since Page Load
       </SpanHeader>
-      <ResponsiveContainer width="100%" height={400}>
-        <AreaChart data={volume} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-          <Area type="monotone" dataKey="volume" stroke='#0098A1' fill="#6562a1" />
+      <ResponsiveContainer width="100%" height={300}>
+        <ComposedChart data={volume} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid stroke='#BDC2C4' strokeDasharray="5 5" opacity="0.4" />
           <XAxis dataKey="time" stroke='#919191' fontSize="12px" />
-          <YAxis stroke='#919191' fontSize="12px" />
+          <YAxis yAxisId="left" stroke='#919191' fontSize="12px" />
+          <YAxis
+                yAxisId="right"
+                orientation="right"
+                stroke='#919191'
+                fontSize="12px"
+          />
           <Tooltip content={<CustomTooltip />} />
-        </AreaChart>
+          <Legend />
+          <Area dataKey="volume" yAxisId="left" type="monotone" stroke='#0098A1' fill="#6562a1" />
+          <Line dataKey="price" yAxisId="right" type="monotone"  stroke="#47CF73" />
+        </ComposedChart>
       </ResponsiveContainer>
       {noChartData && (
         <EmptyInfo>
