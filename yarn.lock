@@ -1890,10 +1890,10 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@paintswap/marketplace-interactions@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@paintswap/marketplace-interactions/-/marketplace-interactions-0.2.1.tgz#bd3a6af89d0c1d7e9367a355f49b99b4fccc2260"
-  integrity sha512-bXJ8ZSXgOrq/VLxzse41dlN67aerXTBJPteQ2SAht+R66XvANRDSOoXrf36jGKD0GKgVsd7K8xX7RARxaSi9Xg==
+"@paintswap/marketplace-interactions@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@paintswap/marketplace-interactions/-/marketplace-interactions-0.2.2.tgz#05204b12706ad33d6838a45f459155dd4f5cf76b"
+  integrity sha512-lgTw5/w/wgEc99BO+Y6zWWrGN84H+3j2c9bgqXUDgUxo2p6ojbL0PETAuEM+DS6eYnlMTa/0EDtWz5iFk52Bcw==
   dependencies:
     ethers "^5.5.1"
 

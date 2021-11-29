@@ -16,6 +16,10 @@ export const getBalanceNumber = (amount: ethers.BigNumber, decimals = 18) => {
   return ethers.BigNumber.from(amount).div((ethers.BigNumber.from(10)).pow(decimals)).toNumber()
 }
 
+export const getBalanceString = (amount: ethers.BigNumber) => {
+  return ethers.utils.formatEther(amount)
+}
+
 export const timeConverter = (timestamp: number) => {
   const a = new Date(timestamp * 1000)
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']

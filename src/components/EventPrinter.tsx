@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { ethers } from "ethers"
 import { MarketplaceV2, Sold, NewListing, Unsold, BundlePriceUpdate, DurationExtended, NewBid, NewOffer } from '@paintswap/marketplace-interactions'
 import styled from 'styled-components'
-import { short, getBalanceNumber, timeConverter } from '../utils/helpers'
+import { short, getBalanceNumber, getBalanceString, timeConverter } from '../utils/helpers'
 import ChartCard from "./ChartCard";
 
 const provider = new ethers.providers.JsonRpcProvider(
@@ -248,17 +248,21 @@ const EventPrinter = () => {
                     <SpanMain>Duration</SpanMain>
                     <SpanMain>{`${item.duration.toNumber() / 3600}h`}</SpanMain>
                   </SectionRow>
+                  {item.amount.toNumber() > 1 && (
+                  <>
+                    <SectionRow>
+                      <SpanMain>Amount</SpanMain>
+                      <SpanMain>{item.amount.toString()}</SpanMain>
+                    </SectionRow>
+                    <SectionRow>
+                      <SpanMain>Unit Price</SpanMain>
+                      <SpanMain>{getBalanceString(item.pricePerUnit)}</SpanMain>
+                    </SectionRow>
+                  </>
+                  )}
                   <SectionRow>
-                    <SpanMain>Amount</SpanMain>
-                    <SpanMain>{item.amount.toString()}</SpanMain>
-                  </SectionRow>
-                  <SectionRow>
-                    <SpanMain>Unit Price</SpanMain>
-                    <SpanMain>{getBalanceNumber(item.pricePerUnit)}</SpanMain>
-                  </SectionRow>
-                  <SectionRow>
-                    <SpanMain>Total Price</SpanMain>
-                    <SpanMain>{getBalanceNumber(item.priceTotal)}</SpanMain>
+                    <SpanMain>{`${item.amount.toNumber() > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
+                    <SpanMain>{getBalanceString(item.priceTotal)}</SpanMain>
                   </SectionRow>
                   <Divider/>
                 </FeedSection>
@@ -284,17 +288,21 @@ const EventPrinter = () => {
                   <SpanMain>Token ID</SpanMain>
                   <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
                 </SectionRow>
+                {item.amount.toNumber() > 1 && (
+                  <>
+                    <SectionRow>
+                      <SpanMain>Amount</SpanMain>
+                      <SpanMain>{item.amount.toString()}</SpanMain>
+                    </SectionRow>
+                    <SectionRow>
+                      <SpanMain>Unit Price</SpanMain>
+                      <SpanMain>{getBalanceString(item.pricePerUnit)}</SpanMain>
+                    </SectionRow>
+                  </>
+                )}
                 <SectionRow>
-                  <SpanMain>Amount</SpanMain>
-                  <SpanMain>{item.amount.toString()}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Unit Price</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.pricePerUnit)}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Total Price</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.priceTotal)}</SpanMain>
+                  <SpanMain>{`${item.amount.toNumber() > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
+                  <SpanMain>{getBalanceString(item.priceTotal)}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -342,7 +350,7 @@ const EventPrinter = () => {
                 <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
                 <SectionRow>
                   <SpanMain>New Price</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.price)}</SpanMain>
+                  <SpanMain>{getBalanceString(item.price)}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -366,11 +374,11 @@ const EventPrinter = () => {
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Bid</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.bid)}</SpanMain>
+                  <SpanMain>{getBalanceString(item.bid)}</SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Next Minimum</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.nextMinimum)}</SpanMain>
+                  <SpanMain>{getBalanceString(item.nextMinimum)}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -394,11 +402,11 @@ const EventPrinter = () => {
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Offer</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.offer)}</SpanMain>
+                  <SpanMain>{getBalanceString(item.offer)}</SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Next Minimum</SpanMain>
-                  <SpanMain>{getBalanceNumber(item.nextMinimum)}</SpanMain>
+                  <SpanMain>{getBalanceString(item.nextMinimum)}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
