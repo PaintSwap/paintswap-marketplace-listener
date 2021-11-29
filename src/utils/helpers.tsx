@@ -23,10 +23,9 @@ export const getBalanceString = (amount: ethers.BigNumber) => {
 export const timeConverter = (timestamp: number) => {
   const a = new Date(timestamp * 1000)
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-  const year = a.getFullYear()
   const month = months[a.getMonth()]
   const date = a.getDate()
-  const hour = a.getHours()
-  const min = a.getMinutes()
-  return month + ' ' + date + ' - ' + year + ' | ' + hour + ':' + min
+  const hour = `0${a.getHours().toString()}`.slice(-2)
+  const min = `0${a.getMinutes().toString()}`.slice(-2)
+  return month + ' ' + date + ' - ' + hour + ':' + min
 }
