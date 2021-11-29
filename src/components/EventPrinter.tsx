@@ -162,7 +162,7 @@ const EventPrinter = () => {
         const chartFeed = chartVolume || []
         chartFeed.push({
           time: timeConverter(Date.now() / 1000),
-          volume: getBalanceNumber(item.priceTotal) + chartFeed.length ? chartFeed[chartFeed.length - 1].volume : 0,
+          volume: getBalanceNumber(item.priceTotal) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
         })
         setChartVolume([...chartFeed])
       })
