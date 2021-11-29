@@ -71,7 +71,7 @@ const ChartCard: React.FC<Props> = ({
   return (
     <ChartContainer>
       <SpanHeader>
-        Total Volume Since Page Load
+        Volume Sold Since Page Load
       </SpanHeader>
       <ResponsiveContainer width="100%" height={400}>
         <AreaChart data={volume} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>

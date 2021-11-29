@@ -139,7 +139,6 @@ const EventPrinter = () => {
   const [offerFeed, setOfferFeed] = React.useState<Array<NewOffer>>([])
 
   // For the chart
-  const [chartVolumeTotal, setChartVolumeTotal] = React.useState(0)
   const [chartVolume, setChartVolume] = React.useState<Array<any>>([])
 
   useEffect(() => {
@@ -163,9 +162,8 @@ const EventPrinter = () => {
         const chartFeed = chartVolume || []
         chartFeed.push({
           time: timeConverter(Date.now() / 1000),
-          volume: chartVolumeTotal + getBalanceNumber(item.priceTotal),
+          volume: getBalanceNumber(item.priceTotal) + chartFeed.length ? chartFeed[chartFeed.length - 1].volume : 0,
         })
-        setChartVolumeTotal(c => c + getBalanceNumber(item.priceTotal))
         setChartVolume([...chartFeed])
       })
 
@@ -218,7 +216,7 @@ const EventPrinter = () => {
       })
     }
     setInit(true)
-  }, [init, listingFeed, soldFeed, unsoldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolumeTotal, chartVolume])
+  }, [init, listingFeed, soldFeed, unsoldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolume])
 
   return (
     <Body>
