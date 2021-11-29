@@ -22,12 +22,22 @@
   left: 10px;
 }
 
+.App-header {
+  margin-bottom: 16px;
+}
+
+.App-subtitle {
+  margin: 0;
+  font-size: calc(8px + 0.8vmin);
+}
+
 a {
   color: rgb(0, 152, 161);
 }
 
 h1 {
   margin-top: 50px;
+  margin-bottom: 8px;
   font-size: calc(10px + 3vmin);
 }
 

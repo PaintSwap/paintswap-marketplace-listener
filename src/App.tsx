@@ -10,6 +10,7 @@ const App: React.FC = () => {
         <h1>
           NFT Live Events
         </h1>
+        <span className="App-subtitle"><a href="https://github.com/PaintSwap/paintswap-marketplace-listener" target="_blank" rel="noreferrer">Code</a> | <a href="https://www.npmjs.com/package/@paintswap/marketplace-interactions" target="_blank" rel="noreferrer">Library</a></span>
       </header>
       <EventPrinter />
     </div>
