@@ -20,7 +20,7 @@ jobs:
           node-version: 14
 
       - name: Install and Build
-      - run: |
+        run: |
           yarn install
           npm run build
 
