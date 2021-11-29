@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { ethers } from "ethers"
-// import { MarketplaceV2 } from "@paintswap/marketplace-interactions"
-// import { Sold, NewListing, Unsold, BundlePriceUpdate, DurationExtended, NewBid, NewOffer } from "@paintswap/marketplace-interactions/dist/lib/marketplaceV2Types";
-// import { MarketplaceV2 } from '../dist/lib'
-// import { Sold, NewListing, Unsold, BundlePriceUpdate, DurationExtended, NewBid, NewOffer } from '../dist/lib/marketplaceV2Types'
-import { MarketplaceV2 } from '../lib'
-import { Sold, NewListing, Unsold, BundlePriceUpdate, DurationExtended, NewBid, NewOffer } from '../lib/marketplaceV2Types'
+import { MarketplaceV2, Sold, NewListing, Unsold, BundlePriceUpdate, DurationExtended, NewBid, NewOffer } from '@paintswap/marketplace-interactions'
 import styled from 'styled-components'
 import { short, getBalanceNumber, timeConverter } from '../utils/helpers'
 import ChartCard from "./ChartCard";

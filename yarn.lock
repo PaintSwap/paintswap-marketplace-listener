@@ -1805,6 +1805,13 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
+"@paintswap/marketplace-interactions@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@paintswap/marketplace-interactions/-/marketplace-interactions-0.2.1.tgz#bd3a6af89d0c1d7e9367a355f49b99b4fccc2260"
+  integrity sha512-bXJ8ZSXgOrq/VLxzse41dlN67aerXTBJPteQ2SAht+R66XvANRDSOoXrf36jGKD0GKgVsd7K8xX7RARxaSi9Xg==
+  dependencies:
+    ethers "^5.5.1"
+
 "@pmmmwh/react-refresh-webpack-plugin@0.4.3":
   version "0.4.3"
   resolved "https://registry.npmjs.org/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.4.3.tgz"
