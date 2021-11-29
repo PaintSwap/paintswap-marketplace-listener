@@ -10,6 +10,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 )
 
 const mainUrl = 'https://paintswap.finance/marketplace/'
+const maxFeedCount = 1000 // Max amount of items per stat to keep in memory
 
 interface UnsoldExtended extends Unsold {
   cancelled: boolean
@@ -149,74 +150,73 @@ const EventPrinter = () => {
       marketplace.onNewListing((item) => {
         console.log('New listing!\n', item)
 
-        const feed: Array<NewListing> = listingFeed || []
-        feed.unshift(item)
-        setListingFeed([...feed])
+        listingFeed.unshift(item)
+        if (listingFeed.length > maxFeedCount) listingFeed.pop()
+        setListingFeed([...listingFeed])
       })
     
       marketplace.onSold((item) => {
         console.log('Sold!\n', item)
 
-        const feed: Array<Sold> = soldFeed || []
-        feed.unshift(item)
-        setSoldFeed([...feed])
+        soldFeed.unshift(item)
+        if (soldFeed.length > maxFeedCount) soldFeed.pop()
+        setSoldFeed([...soldFeed])
 
-        const chartFeed = chartVolume || []
-        chartFeed.push({
+        chartVolume.push({
           time: timeConverter(Date.now() / 1000),
           volume: getBalanceNumber(item.priceTotal) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
           id: item.marketplaceId.toString(),
           price: getBalanceNumber(item.priceTotal)
         })
-        setChartVolume([...chartFeed])
+        if (chartVolume.length > maxFeedCount) chartVolume.shift()
+        setChartVolume([...chartVolume])
       })
 
       marketplace.onUnsold((item, cancelled) => {
-        const feed: Array<UnsoldExtended> = unsoldFeed || []
-        
         if (cancelled) {
             console.log('Cancelled sale\n', item)
             const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: true});
-            feed.unshift(itemExt)
+            unsoldFeed.unshift(itemExt)
         }
         else {
             console.log('Failed to sell\n', item)
             const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: false});
-            feed.unshift(itemExt)
+            unsoldFeed.unshift(itemExt)
         }
-        setUnsoldFeed([...feed])
+        if (unsoldFeed.length > maxFeedCount) unsoldFeed.pop()
+        setUnsoldFeed([...unsoldFeed])
       })
 
       marketplace.onPriceUpdate((item) => {
         console.log('Price updated\n', item)
     
-        const feed: Array<BundlePriceUpdate> = priceUpdateFeed || []
-        feed.unshift(item)
-        setPriceUpdateFeed([...feed])
+        priceUpdateFeed.unshift(item)
+        if (priceUpdateFeed.length > maxFeedCount) priceUpdateFeed.pop()
+        setPriceUpdateFeed([...priceUpdateFeed])
       })
     
       marketplace.onNewBid((bid) => {
         console.log('New bid\n', bid)
 
-        const feed: Array<NewBid> = bidFeed || []
-        feed.unshift(bid)
-        setBidFeed([...feed])
+        bidFeed.unshift(bid)
+        if (bidFeed.length > maxFeedCount) bidFeed.pop()
+        setBidFeed([...bidFeed])
       })
     
       marketplace.onNewOffer((offer) => {
         console.log('New offer\n', offer)
 
-        const feed: Array<NewOffer> = offerFeed || []
-        feed.unshift(offer)
-        setOfferFeed([...feed])
+        offerFeed.unshift(offer)
+        if (offerFeed.length > maxFeedCount) offerFeed.pop()
+        setOfferFeed([...offerFeed])
       })
 
       marketplace.onDurationExtended((extension) => {
         console.log('Auction duration extended\n', extension)
 
-        const feed: Array<DurationExtended> = durationExtendedFeed || []
-        feed.unshift(extension)
-        setDurationExtendedFeed([...feed])
+        durationExtendedFeed.unshift(extension)
+        if (durationExtendedFeed.length > maxFeedCount) durationExtendedFeed.pop()
+        setDurationExtendedFeed([...durationExtendedFeed])
       })
     }
     setInit(true)
