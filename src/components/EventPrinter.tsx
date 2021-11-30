@@ -13,8 +13,33 @@ const mainUrl = 'https://paintswap.finance/marketplace/'
 const maxFeedCount = 1000 // Max amount of items per stat to keep in memory
 const maxChartCount = 500 // Max amount of items per chart to keep in memory
 
-interface UnsoldExtended extends Unsold {
+interface NewListingExt extends NewListing {
+  time: string
+}
+
+interface SoldExt extends Sold {
+  time: string
+}
+
+interface BundlePriceUpdateExt extends BundlePriceUpdate {
+  time: string
+}
+
+interface DurationExtendedExt extends DurationExtended {
+  time: string
+}
+
+interface NewBidExt extends NewBid {
+  time: string
+}
+
+interface NewOfferExt extends NewOffer {
+  time: string
+}
+
+interface UnsoldExt extends Unsold {
   cancelled: boolean
+  time: string
 }
 
 const marketplace = new MarketplaceV2(provider)
@@ -68,7 +93,7 @@ const ListContainer = styled.div`
   }
 
   ${mediaQueries.xxl} {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 `
 
@@ -114,9 +139,9 @@ const SectionRow = styled.div`
 `
 
 const SpanHeader = styled.span`
-  margin-top: 16px;
   font-size: 18px;
   font-weight: bold;
+  margin-bottom: 8px;
 `
 const SpanMain = styled.span`
   font-size: 14px;
@@ -134,13 +159,13 @@ const Divider = styled.div`
 const EventPrinter = () => {
   const [init, setInit] = React.useState(false)
 
-  const [listingFeed, setListingFeed] = React.useState<Array<NewListing>>([])
-  const [soldFeed, setSoldFeed] = React.useState<Array<Sold>>([])
-  const [unsoldFeed, setUnsoldFeed] = React.useState<Array<UnsoldExtended>>([])
-  const [priceUpdateFeed, setPriceUpdateFeed] = React.useState<Array<BundlePriceUpdate>>([])
-  const [durationExtendedFeed, setDurationExtendedFeed] = React.useState<Array<DurationExtended>>([])
-  const [bidFeed, setBidFeed] = React.useState<Array<NewBid>>([])
-  const [offerFeed, setOfferFeed] = React.useState<Array<NewOffer>>([])
+  const [listingFeed, setListingFeed] = React.useState<Array<NewListingExt>>([])
+  const [soldFeed, setSoldFeed] = React.useState<Array<SoldExt>>([])
+  const [unsoldFeed, setUnsoldFeed] = React.useState<Array<UnsoldExt>>([])
+  const [priceUpdateFeed, setPriceUpdateFeed] = React.useState<Array<BundlePriceUpdateExt>>([])
+  const [durationExtendedFeed, setDurationExtendedFeed] = React.useState<Array<DurationExtendedExt>>([])
+  const [bidFeed, setBidFeed] = React.useState<Array<NewBidExt>>([])
+  const [offerFeed, setOfferFeed] = React.useState<Array<NewOfferExt>>([])
 
   // For the chart
   const [chartVolume, setChartVolume] = React.useState<Array<any>>([])
@@ -151,7 +176,8 @@ const EventPrinter = () => {
       marketplace.onNewListing((item) => {
         console.log('New listing!\n', item)
 
-        listingFeed.unshift(item)
+        const itemExt: NewListingExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+        listingFeed.unshift(itemExt)
         if (listingFeed.length > maxFeedCount) listingFeed.pop()
         setListingFeed([...listingFeed])
       })
@@ -159,15 +185,16 @@ const EventPrinter = () => {
       marketplace.onSold((item) => {
         console.log('Sold!\n', item)
 
-        soldFeed.unshift(item)
+        const itemExt: SoldExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+        soldFeed.unshift(itemExt)
         if (soldFeed.length > maxFeedCount) soldFeed.pop()
         setSoldFeed([...soldFeed])
 
         chartVolume.push({
-          time: timeConverter(Date.now() / 1000),
-          volume: getBalanceNumber(item.priceTotal) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
-          id: item.marketplaceId.toString(),
-          price: getBalanceNumber(item.priceTotal)
+          time: itemExt.time,
+          volume: getBalanceNumber(itemExt.priceTotal) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
+          id: itemExt.marketplaceId.toString(),
+          price: getBalanceNumber(itemExt.priceTotal)
         })
         if (chartVolume.length > maxChartCount) chartVolume.shift()
         setChartVolume([...chartVolume])
@@ -176,12 +203,12 @@ const EventPrinter = () => {
       marketplace.onUnsold((item, cancelled) => {
         if (cancelled) {
             console.log('Cancelled sale\n', item)
-            const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: true});
+            const itemExt: UnsoldExt = Object.assign({}, item, {cancelled: true, time: timeConverter(Date.now() / 1000)})
             unsoldFeed.unshift(itemExt)
         }
         else {
             console.log('Failed to sell\n', item)
-            const itemExt: UnsoldExtended = Object.assign({}, item, {cancelled: false});
+            const itemExt: UnsoldExt = Object.assign({}, item, {cancelled: false, time: timeConverter(Date.now() / 1000)})
             unsoldFeed.unshift(itemExt)
         }
         if (unsoldFeed.length > maxFeedCount) unsoldFeed.pop()
@@ -191,7 +218,8 @@ const EventPrinter = () => {
       marketplace.onPriceUpdate((item) => {
         console.log('Price updated\n', item)
     
-        priceUpdateFeed.unshift(item)
+        const itemExt: BundlePriceUpdateExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+        priceUpdateFeed.unshift(itemExt)
         if (priceUpdateFeed.length > maxFeedCount) priceUpdateFeed.pop()
         setPriceUpdateFeed([...priceUpdateFeed])
       })
@@ -199,7 +227,8 @@ const EventPrinter = () => {
       marketplace.onNewBid((bid) => {
         console.log('New bid\n', bid)
 
-        bidFeed.unshift(bid)
+        const itemExt: NewBidExt = Object.assign({}, bid, {time: timeConverter(Date.now() / 1000)})
+        bidFeed.unshift(itemExt)
         if (bidFeed.length > maxFeedCount) bidFeed.pop()
         setBidFeed([...bidFeed])
       })
@@ -207,7 +236,8 @@ const EventPrinter = () => {
       marketplace.onNewOffer((offer) => {
         console.log('New offer\n', offer)
 
-        offerFeed.unshift(offer)
+        const itemExt: NewOfferExt = Object.assign({}, offer, {time: timeConverter(Date.now() / 1000)})
+        offerFeed.unshift(itemExt)
         if (offerFeed.length > maxFeedCount) offerFeed.pop()
         setOfferFeed([...offerFeed])
       })
@@ -215,7 +245,8 @@ const EventPrinter = () => {
       marketplace.onDurationExtended((extension) => {
         console.log('Auction duration extended\n', extension)
 
-        durationExtendedFeed.unshift(extension)
+        const itemExt: DurationExtendedExt = Object.assign({}, extension, {time: timeConverter(Date.now() / 1000)})
+        durationExtendedFeed.unshift(itemExt)
         if (durationExtendedFeed.length > maxFeedCount) durationExtendedFeed.pop()
         setDurationExtendedFeed([...durationExtendedFeed])
       })
@@ -228,11 +259,14 @@ const EventPrinter = () => {
       <ListContainer>
         {/** LISTINGS */}
         <FeedContainer>
-          <p>LISTINGS</p>
+          <p>LISTING</p>
           <Feed>
-            {listingFeed && listingFeed.map((item: NewListing, index: number) => (
+            {listingFeed && listingFeed.map((item: NewListingExt, index: number) => (
                 <FeedSection key={index}>
-                  <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SectionRow>
+                    <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                    <SpanMain>{item.time}</SpanMain>
+                  </SectionRow>
                   <SectionRow>
                     <SpanMain>Collection</SpanMain>
                     <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
@@ -278,9 +312,12 @@ const EventPrinter = () => {
         <FeedContainer>
         <p>SOLD</p>
           <Feed>
-            {soldFeed && soldFeed.map((item: Sold, index: number) => (
+            {soldFeed && soldFeed.map((item: SoldExt, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SectionRow>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanMain>{item.time}</SpanMain>
+                </SectionRow>
                 <SectionRow>
                   <SpanMain>Collection</SpanMain>
                   <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
@@ -318,9 +355,12 @@ const EventPrinter = () => {
         <FeedContainer>
           <p>UNSOLD</p>
           <Feed>
-            {unsoldFeed && unsoldFeed.map((item: UnsoldExtended, index: number) => (
+            {unsoldFeed && unsoldFeed.map((item: UnsoldExt, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SectionRow>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanMain>{item.time}</SpanMain>
+                </SectionRow>
                 <SectionRow>
                   <SpanMain>Reason</SpanMain>
                   <SpanMain>{item.cancelled ? 'Cancelled' : 'Expired'}</SpanMain>
@@ -344,11 +384,14 @@ const EventPrinter = () => {
 
         {/** PRICE UPDATE */}
         <FeedContainer>
-        <p>PRICE UPDATES</p>
+        <p>PRICE UPDATE</p>
           <Feed>
-            {priceUpdateFeed && priceUpdateFeed.map((item: BundlePriceUpdate, index: number) => (
+            {priceUpdateFeed && priceUpdateFeed.map((item: BundlePriceUpdateExt, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SectionRow>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanMain>{item.time}</SpanMain>
+                </SectionRow>
                 <SectionRow>
                   <SpanMain>New Price</SpanMain>
                   <SpanMain>{getBalanceString(item.price)}</SpanMain>
@@ -366,9 +409,12 @@ const EventPrinter = () => {
         <FeedContainer>
         <p>BIDS</p>
           <Feed>
-            {bidFeed && bidFeed.map((item: NewBid, index: number) => (
+            {bidFeed && bidFeed.map((item: NewBidExt, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SectionRow>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanMain>{item.time}</SpanMain>
+                </SectionRow>
                 <SectionRow>
                   <SpanMain>Bidder</SpanMain>
                   <SpanMain><a href={`${mainUrl}user/${item.bidder.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.bidder)}</a></SpanMain>
@@ -394,9 +440,12 @@ const EventPrinter = () => {
         <FeedContainer>
         <p>OFFERS</p>
           <Feed>
-            {offerFeed && offerFeed.map((item: NewOffer, index: number) => (
+            {offerFeed && offerFeed.map((item: NewOfferExt, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SectionRow>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanMain>{item.time}</SpanMain>
+                </SectionRow>
                 <SectionRow>
                   <SpanMain>Offerer</SpanMain>
                   <SpanMain><a href={`${mainUrl}user/${item.offerrer.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.offerrer)}</a></SpanMain>
@@ -418,14 +467,16 @@ const EventPrinter = () => {
           </Feed>
         </FeedContainer>
 
-        {/** AUCTIONS EXTENDED - Hidden for now due to low activity*/}
-        {/** 
+        {/** AUCTIONS EXTENDED*/}
         <FeedContainer>
-        <p>AUCTIONS EXTENDED</p>
+        <p>AUCTION CHANGE</p>
           <Feed>
-            {durationExtendedFeed && durationExtendedFeed.map((item: DurationExtended, index: number) => (
+            {durationExtendedFeed && durationExtendedFeed.map((item: DurationExtendedExt, index: number) => (
               <FeedSection key={index}>
-                <SpanHeader>ID: <a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                <SectionRow>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanMain>{item.time}</SpanMain>
+                </SectionRow>
                 <SectionRow>
                   <SpanMain>End Time</SpanMain>
                   <SpanMain>{timeConverter(item.endTime.toNumber())}</SpanMain>
@@ -438,7 +489,6 @@ const EventPrinter = () => {
             )}
           </Feed>
         </FeedContainer>
-        */}
       </ListContainer>
       <ChartArea>
         <ChartCard volume={chartVolume} />
