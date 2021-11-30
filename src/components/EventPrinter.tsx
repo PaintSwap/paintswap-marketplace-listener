@@ -11,6 +11,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 
 const mainUrl = 'https://paintswap.finance/marketplace/'
 const maxFeedCount = 1000 // Max amount of items per stat to keep in memory
+const maxChartCount = 500 // Max amount of items per chart to keep in memory
 
 interface UnsoldExtended extends Unsold {
   cancelled: boolean
@@ -168,7 +169,7 @@ const EventPrinter = () => {
           id: item.marketplaceId.toString(),
           price: getBalanceNumber(item.priceTotal)
         })
-        if (chartVolume.length > maxFeedCount) chartVolume.shift()
+        if (chartVolume.length > maxChartCount) chartVolume.shift()
         setChartVolume([...chartVolume])
       })
 
