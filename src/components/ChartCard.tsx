@@ -67,7 +67,7 @@ const ChartCard: React.FC<Props> = ({
     return null
   }
 
-  const noChartData = !volume.length
+  const chartData = volume.length
 
   return (
     <ChartContainer>
@@ -78,7 +78,7 @@ const ChartCard: React.FC<Props> = ({
         <ComposedChart data={volume} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid stroke='#BDC2C4' strokeDasharray="5 5" opacity="0.4" />
           <XAxis dataKey="time" stroke='#919191' fontSize="12px" />
-          <YAxis yAxisId="left" stroke='#919191' fontSize="12px" />
+          <YAxis yAxisId="left" stroke='#919191' fontSize="12px" domain={['dataMin', 'dataMax']} />
           <YAxis
                 yAxisId="right"
                 orientation="right"
@@ -91,7 +91,7 @@ const ChartCard: React.FC<Props> = ({
           <Line dataKey="price" yAxisId="right" type="monotone"  stroke="#47CF73" />
         </ComposedChart>
       </ResponsiveContainer>
-      {noChartData && (
+      {!chartData && (
         <EmptyInfo>
           <SpanHeader >
             No sales yet
