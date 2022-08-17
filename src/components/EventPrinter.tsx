@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { ethers } from "ethers"
-import { MarketplaceV2, Sold, NewListing, Unsold, BundlePriceUpdate, DurationExtended, NewBid, NewOffer } from '@paintswap/marketplace-interactions'
+import { MarketplaceV3 } from '@paintswap/marketplace-interactions'
+import { NewListing, Sold, PriceUpdate, DurationExtended, NewBid, NewOffer, OfferAccepted } from "@paintswap/marketplace-interactions/dist/lib/marketplaceV3Types";
 import styled from 'styled-components'
 import { short, getBalanceNumber, getBalanceString, timeConverter } from '../utils/helpers'
 import ChartCard from "./ChartCard";
@@ -21,7 +22,7 @@ interface SoldExt extends Sold {
   time: string
 }
 
-interface BundlePriceUpdateExt extends BundlePriceUpdate {
+interface BundlePriceUpdateExt extends PriceUpdate {
   time: string
 }
 
@@ -37,12 +38,11 @@ interface NewOfferExt extends NewOffer {
   time: string
 }
 
-interface UnsoldExt extends Unsold {
-  cancelled: boolean
+interface OfferAcceptedExt extends OfferAccepted {
   time: string
 }
 
-const marketplace = new MarketplaceV2(provider)
+const marketplace = new MarketplaceV3(provider)
 
 const breakpoints = {
   xs: 0,
@@ -93,7 +93,7 @@ const ListContainer = styled.div`
   }
 
   ${mediaQueries.xxl} {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 `
 
@@ -171,8 +171,8 @@ const EventPrinter = () => {
 
   const [listingFeed, setListingFeed] = React.useState<Array<NewListingExt>>([])
   const [soldFeed, setSoldFeed] = React.useState<Array<SoldExt>>([])
-  const [unsoldFeed, setUnsoldFeed] = React.useState<Array<UnsoldExt>>([])
   const [priceUpdateFeed, setPriceUpdateFeed] = React.useState<Array<BundlePriceUpdateExt>>([])
+  const [acceptedOfferFeed, setAcceptedOfferFeed] = React.useState<Array<OfferAcceptedExt>>([])
   const [durationExtendedFeed, setDurationExtendedFeed] = React.useState<Array<DurationExtendedExt>>([])
   const [bidFeed, setBidFeed] = React.useState<Array<NewBidExt>>([])
   const [offerFeed, setOfferFeed] = React.useState<Array<NewOfferExt>>([])
@@ -210,28 +210,13 @@ const EventPrinter = () => {
         setChartVolume([...chartVolume])
       })
 
-      marketplace.onUnsold((item, cancelled) => {
-        if (cancelled) {
-            console.log('Cancelled sale\n', item)
-            const itemExt: UnsoldExt = Object.assign({}, item, {cancelled: true, time: timeConverter(Date.now() / 1000)})
-            unsoldFeed.unshift(itemExt)
-        }
-        else {
-            console.log('Failed to sell\n', item)
-            const itemExt: UnsoldExt = Object.assign({}, item, {cancelled: false, time: timeConverter(Date.now() / 1000)})
-            unsoldFeed.unshift(itemExt)
-        }
-        if (unsoldFeed.length > maxFeedCount) unsoldFeed.pop()
-        setUnsoldFeed([...unsoldFeed])
-      })
+      marketplace.onOfferAccepted((item) => {
+        console.log('Accepted Offer\n', item)
 
-      marketplace.onPriceUpdate((item) => {
-        console.log('Price updated\n', item)
-    
-        const itemExt: BundlePriceUpdateExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
-        priceUpdateFeed.unshift(itemExt)
-        if (priceUpdateFeed.length > maxFeedCount) priceUpdateFeed.pop()
-        setPriceUpdateFeed([...priceUpdateFeed])
+        const itemExt: OfferAcceptedExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+        acceptedOfferFeed.unshift(itemExt)
+        if (acceptedOfferFeed.length > maxFeedCount) acceptedOfferFeed.pop()
+        setAcceptedOfferFeed([...acceptedOfferFeed])
       })
     
       marketplace.onNewBid((bid) => {
@@ -252,6 +237,7 @@ const EventPrinter = () => {
         setOfferFeed([...offerFeed])
       })
 
+      /** Listeners currently not displayed */
       marketplace.onDurationExtended((extension) => {
         console.log('Auction duration extended\n', extension)
 
@@ -260,9 +246,54 @@ const EventPrinter = () => {
         if (durationExtendedFeed.length > maxFeedCount) durationExtendedFeed.pop()
         setDurationExtendedFeed([...durationExtendedFeed])
       })
+
+      marketplace.onPriceUpdate((item) => {
+        console.log('Price updated\n', item)
+    
+        const itemExt: BundlePriceUpdateExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+        priceUpdateFeed.unshift(itemExt)
+        if (priceUpdateFeed.length > maxFeedCount) priceUpdateFeed.pop()
+        setPriceUpdateFeed([...priceUpdateFeed])
+      })
+
+      marketplace.onCancelled((item) => {
+        console.log('Sale Cancelled\n', item)
+      })
+
+      marketplace.onFinished((item) => {
+        console.log('Sale Finished\n', item)
+      })
+
+      marketplace.onNewCollectionOffer((item) => {
+        console.log('New Collection Offer\n', item)
+      })
+
+      marketplace.onNewFilteredCollectionOffer((item) => {
+        console.log('New Filtered Collection Offer\n', item)
+      })
+
+      marketplace.onNewListingAsBundle((item) => {
+        console.log('New Bundled Listing\n', item)
+      })
+
+      marketplace.onNewOfferAsBundle((item) => {
+        console.log('New Bundled Offer\n', item)
+      })
+
+      marketplace.onOfferRemoved((item) => {
+        console.log('Removed Offer\n', item)
+      })
+
+      marketplace.onOfferUpdated((item) => {
+        console.log('Updated Offer\n', item)
+      })
+
+      marketplace.onSoldAsBundle((item) => {
+        console.log('Sold as Bundle\n', item)
+      })
     }
     setInit(true)
-  }, [init, listingFeed, soldFeed, unsoldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolume])
+  }, [init, listingFeed, soldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolume])
 
   return (
     <Body>
@@ -279,11 +310,11 @@ const EventPrinter = () => {
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Collection</SpanMain>
-                    <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
+                    <SpanMain><a href={`${mainUrl}collections/${item.nft.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.nft.toLowerCase())}</a></SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Token ID</SpanMain>
-                    <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
+                    <SpanMain><a href={`${mainUrl}assets/${item.nft.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Type</SpanMain>
@@ -291,7 +322,7 @@ const EventPrinter = () => {
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Duration</SpanMain>
-                    <SpanMain>{`${item.duration.toNumber() / 3600}h`}</SpanMain>
+                    <SpanMain>{`${(item.duration.toNumber() / 3600).toLocaleString(undefined, {maximumFractionDigits: 2})}h`}</SpanMain>
                   </SectionRow>
                   {item.amount.toNumber() > 1 && (
                   <>
@@ -301,13 +332,13 @@ const EventPrinter = () => {
                     </SectionRow>
                     <SectionRow>
                       <SpanMain>Unit Price</SpanMain>
-                      <SpanMain>{getBalanceString(item.pricePerUnit)}</SpanMain>
+                      <SpanMain>{Number(getBalanceString(item.pricePerUnit)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
                     </SectionRow>
                   </>
                   )}
                   <SectionRow>
                     <SpanMain>{`${item.amount.toNumber() > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
-                    <SpanMain>{getBalanceString(item.priceTotal)}</SpanMain>
+                    <SpanMain>{Number(getBalanceString(item.priceTotal)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
                   </SectionRow>
                   <Divider/>
                 </FeedSection>
@@ -330,11 +361,11 @@ const EventPrinter = () => {
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Collection</SpanMain>
-                  <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}collections/${item.nft.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.nft.toLowerCase())}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Token ID</SpanMain>
-                  <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
+                  <SpanMain><a href={`${mainUrl}assets/${item.nft.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
                 </SectionRow>
                 {item.amount.toNumber() > 1 && (
                   <>
@@ -344,72 +375,18 @@ const EventPrinter = () => {
                     </SectionRow>
                     <SectionRow>
                       <SpanMain>Unit Price</SpanMain>
-                      <SpanMain>{getBalanceString(item.pricePerUnit)}</SpanMain>
+                      <SpanMain>{Number(getBalanceString(item.pricePerUnit)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
                     </SectionRow>
                   </>
                 )}
                 <SectionRow>
                   <SpanMain>{`${item.amount.toNumber() > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
-                  <SpanMain>{getBalanceString(item.priceTotal)}</SpanMain>
+                  <SpanMain>{Number(getBalanceString(item.priceTotal)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
             ))}
             {!soldFeed.length && (
-              <SpanHeader>Waiting for events...</SpanHeader>
-            )}
-          </Feed>
-        </FeedContainer>
-
-        {/** UNSOLD */}
-        <FeedContainer>
-          <p>UNSOLD</p>
-          <Feed>
-            {unsoldFeed && unsoldFeed.map((item: UnsoldExt, index: number) => (
-              <FeedSection key={index}>
-                <SectionRow>
-                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
-                  <SpanMain>{item.time}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Reason</SpanMain>
-                  <SpanMain>{item.cancelled ? 'Cancelled' : 'Expired'}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Collection</SpanMain>
-                  <SpanMain><a href={`${mainUrl}collections/${item.collection.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.collection.toLowerCase())}</a></SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Token ID</SpanMain>
-                  <SpanMain><a href={`${mainUrl}assets/${item.collection.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
-                </SectionRow>
-                <Divider/>
-              </FeedSection>
-            ))}
-            {!unsoldFeed.length && (
-              <SpanHeader>Waiting for events...</SpanHeader>
-            )}
-          </Feed>
-        </FeedContainer>
-
-        {/** PRICE UPDATE */}
-        <FeedContainer>
-        <p>PRICE UPDATE</p>
-          <Feed>
-            {priceUpdateFeed && priceUpdateFeed.map((item: BundlePriceUpdateExt, index: number) => (
-              <FeedSection key={index}>
-                <SectionRow>
-                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
-                  <SpanMain>{item.time}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>New Price</SpanMain>
-                  <SpanMain>{getBalanceString(item.price)}</SpanMain>
-                </SectionRow>
-                <Divider/>
-              </FeedSection>
-            ))}
-            {!priceUpdateFeed.length && (
               <SpanHeader>Waiting for events...</SpanHeader>
             )}
           </Feed>
@@ -426,16 +403,12 @@ const EventPrinter = () => {
                   <SpanMain>{item.time}</SpanMain>
                 </SectionRow>
                 <SectionRow>
-                  <SpanMain>Bidder</SpanMain>
+                  <SpanMain>From</SpanMain>
                   <SpanMain><a href={`${mainUrl}user/${item.bidder.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.bidder)}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
-                  <SpanMain>Bid</SpanMain>
-                  <SpanMain>{getBalanceString(item.bid)}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Next Minimum</SpanMain>
-                  <SpanMain>{getBalanceString(item.nextMinimum)}</SpanMain>
+                  <SpanMain>Price</SpanMain>
+                  <SpanMain>{Number(getBalanceString(item.bid)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -453,20 +426,16 @@ const EventPrinter = () => {
             {offerFeed && offerFeed.map((item: NewOfferExt, index: number) => (
               <FeedSection key={index}>
                 <SectionRow>
-                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId?.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId?.toString()}</a></SpanHeader>
                   <SpanMain>{item.time}</SpanMain>
                 </SectionRow>
                 <SectionRow>
-                  <SpanMain>Offerer</SpanMain>
-                  <SpanMain><a href={`${mainUrl}user/${item.offerrer.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.offerrer)}</a></SpanMain>
+                  <SpanMain>From</SpanMain>
+                  <SpanMain><a href={`${mainUrl}user/${item.from.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.from)}</a></SpanMain>
                 </SectionRow>
                 <SectionRow>
-                  <SpanMain>Offer</SpanMain>
-                  <SpanMain>{getBalanceString(item.offer)}</SpanMain>
-                </SectionRow>
-                <SectionRow>
-                  <SpanMain>Next Minimum</SpanMain>
-                  <SpanMain>{getBalanceString(item.nextMinimum)}</SpanMain>
+                  <SpanMain>Price</SpanMain>
+                  <SpanMain>{Number(getBalanceString(item.price)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -477,24 +446,36 @@ const EventPrinter = () => {
           </Feed>
         </FeedContainer>
 
-        {/** AUCTIONS EXTENDED*/}
-        <FeedContainer>
-        <p>AUCTION CHANGE</p>
+         {/** OFFERS ACCEPTED */}
+         <FeedContainer>
+        <p>OFFERS TAKEN</p>
           <Feed>
-            {durationExtendedFeed && durationExtendedFeed.map((item: DurationExtendedExt, index: number) => (
+            {acceptedOfferFeed && acceptedOfferFeed.map((item: OfferAcceptedExt, index: number) => (
               <FeedSection key={index}>
                 <SectionRow>
-                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId.toString()}</a></SpanHeader>
+                  <SpanHeader><a href={`${mainUrl}${item.marketplaceId?.toString()}`} target="_blank" rel="noreferrer">{item.marketplaceId?.toString()}</a></SpanHeader>
                   <SpanMain>{item.time}</SpanMain>
                 </SectionRow>
                 <SectionRow>
-                  <SpanMain>End Time</SpanMain>
-                  <SpanMain>{timeConverter(item.endTime.toNumber())}</SpanMain>
+                  <SpanMain>Collection</SpanMain>
+                  <SpanMain><a href={`${mainUrl}collections/${item.nft.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.nft.toLowerCase())}</a></SpanMain>
                 </SectionRow>
+                <SectionRow>
+                  <SpanMain>Token ID</SpanMain>
+                  <SpanMain><a href={`${mainUrl}assets/${item.nft.toLowerCase()}/${item.tokenId.toString()}`} target="_blank" rel="noreferrer">{item.tokenId.toString()}</a></SpanMain>
+                </SectionRow>
+                {item.quantity.toNumber() > 1 && (
+                  <>
+                    <SectionRow>
+                      <SpanMain>Quantity</SpanMain>
+                      <SpanMain>{item.quantity.toString()}</SpanMain>
+                    </SectionRow>
+                  </>
+                )}
                 <Divider/>
               </FeedSection>
             ))}
-            {!durationExtendedFeed.length && (
+            {!acceptedOfferFeed.length && (
               <SpanHeader>Waiting for events...</SpanHeader>
             )}
           </Feed>
