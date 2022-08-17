@@ -8,7 +8,7 @@ const ChartContainer = styled.div`
   flex-direction: column;
   background-color: #131318;
   border-radius: 20px;
-  padding: 16px;
+  padding: 24px 16px;
   margin-top: 60px;
   position: relative;
 `
@@ -39,10 +39,19 @@ const SpanHeader = styled.span`
   font-weight: bold;
   margin-bottom: 8px;
 `
+
 const SpanMain = styled.span`
   font-size: 12px;
   color: #7d8fd1;
   margin-bottom: 4px;
+`
+
+const ChartHeader = styled.span`
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  margin-left: 24px;
+  text-align: left;
 `
 
 interface Props {
@@ -71,10 +80,10 @@ const ChartCard: React.FC<Props> = ({
 
   return (
     <ChartContainer>
-      <SpanHeader>
+      <ChartHeader>
         Volume Sold Since Page Load
-      </SpanHeader>
-      <ResponsiveContainer width="100%" height={300}>
+      </ChartHeader>
+      <ResponsiveContainer width="100%" height={700}>
         <ComposedChart data={volume} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid stroke='#BDC2C4' strokeDasharray="5 5" opacity="0.4" />
           <XAxis dataKey="time" stroke='#919191' fontSize="12px" />

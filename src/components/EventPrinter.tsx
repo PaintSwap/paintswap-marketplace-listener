@@ -100,8 +100,12 @@ const ListContainer = styled.div`
 const ChartArea = styled.div`
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  grid-gap: 60px;
+  grid-column-gap: 60px;
   width: 100%;
+
+  ${mediaQueries.lg} {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 `
 
 const FeedContainer = styled.div`
@@ -154,6 +158,12 @@ const Divider = styled.div`
   width: 100%;
   background-color: #7d8fd1;
   opacity: 0.3;
+`
+
+const IframeCard = styled.iframe`
+  border-radius: 20px;
+  border: none;
+  margin-top: 60px;
 `
 
 const EventPrinter = () => {
@@ -492,6 +502,7 @@ const EventPrinter = () => {
       </ListContainer>
       <ChartArea>
         <ChartCard volume={chartVolume} />
+        <IframeCard src="https://paintswap.finance/marketplace/globalstats/?hideTable=false" width="100%" height="800px"></IframeCard>
       </ChartArea>
     </Body>
   )
