@@ -293,7 +293,7 @@ const EventPrinter = () => {
       })
     }
     setInit(true)
-  }, [init, listingFeed, soldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolume])
+  }, [init, listingFeed, soldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolume, acceptedOfferFeed])
 
   return (
     <Body>
