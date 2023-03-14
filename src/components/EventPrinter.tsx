@@ -483,7 +483,7 @@ const EventPrinter = () => {
       </ListContainer>
       <ChartArea>
         <ChartCard volume={chartVolume} />
-        <IframeCard src="https://paintswap.finance/marketplace/globalstats/?hideTable=false" width="100%" height="800px"></IframeCard>
+        <IframeCard src="https://paintswap.finance/marketplace/fantom/globalstats?hideTable=false" width="100%" height="800px"></IframeCard>
       </ChartArea>
     </Body>
   )
