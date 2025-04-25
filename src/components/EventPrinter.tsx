@@ -10,7 +10,7 @@ const provider = new ethers.providers.JsonRpcProvider(
   "https://rpc.soniclabs.com/"
 )
 
-const mainUrl = 'https://paintswap.io/'
+const mainUrl = 'https://paintswap.io/sonic/'
 const maxFeedCount = 1000 // Max amount of items per stat to keep in memory
 const maxChartCount = 500 // Max amount of items per chart to keep in memory
 
