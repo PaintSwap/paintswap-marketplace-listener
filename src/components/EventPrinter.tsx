@@ -1,16 +1,16 @@
 import React, { useEffect } from "react";
 import { ethers } from "ethers"
-import { MarketplaceV3 } from '@paintswap/marketplace-interactions'
-import { NewListing, Sold, PriceUpdate, DurationExtended, NewBid, NewOffer, OfferAccepted } from "@paintswap/marketplace-interactions/dist/lib/marketplaceV3Types";
+import { Marketplace } from '@paintswap/marketplace-interactions'
+import { NewListing, Sold, PriceUpdate, DurationExtended, NewBid, NewOffer, OfferAccepted } from "@paintswap/marketplace-interactions/dist/lib/marketplaceTypes";
 import styled from 'styled-components'
 import { short, getBalanceNumber, getBalanceString, timeConverter } from '../utils/helpers'
 import ChartCard from "./ChartCard";
 
 const provider = new ethers.providers.JsonRpcProvider(
-  "https://rpc.ftm.tools/"
+  "https://rpc.soniclabs.com/"
 )
 
-const mainUrl = 'https://paintswap.finance/marketplace/'
+const mainUrl = 'https://paintswap.io/'
 const maxFeedCount = 1000 // Max amount of items per stat to keep in memory
 const maxChartCount = 500 // Max amount of items per chart to keep in memory
 
@@ -42,7 +42,7 @@ interface OfferAcceptedExt extends OfferAccepted {
   time: string
 }
 
-const marketplace = new MarketplaceV3(provider)
+const marketplace = new Marketplace(provider)
 
 const breakpoints = {
   xs: 0,
@@ -104,7 +104,7 @@ const ChartArea = styled.div`
   width: 100%;
 
   ${mediaQueries.lg} {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 `
 
@@ -160,12 +160,6 @@ const Divider = styled.div`
   opacity: 0.3;
 `
 
-const IframeCard = styled.iframe`
-  border-radius: 20px;
-  border: none;
-  margin-top: 60px;
-`
-
 const EventPrinter = () => {
   const [init, setInit] = React.useState(false)
 
@@ -183,114 +177,154 @@ const EventPrinter = () => {
   useEffect(() => {
     if (!init) {
       console.log("Start listening")
-      marketplace.onNewListing((item) => {
-        console.log('New listing!\n', item)
+      try {
+        marketplace.onNewListing((item) => {
+          console.log('New listing!\n', item)
 
-        const itemExt: NewListingExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
-        listingFeed.unshift(itemExt)
-        if (listingFeed.length > maxFeedCount) listingFeed.pop()
-        setListingFeed([...listingFeed])
-      })
-    
-      marketplace.onSold((item) => {
-        console.log('Sold!\n', item)
-
-        const itemExt: SoldExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
-        soldFeed.unshift(itemExt)
-        if (soldFeed.length > maxFeedCount) soldFeed.pop()
-        setSoldFeed([...soldFeed])
-
-        chartVolume.push({
-          time: itemExt.time,
-          volume: getBalanceNumber(itemExt.priceTotal) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
-          id: itemExt.marketplaceId.toString(),
-          price: getBalanceNumber(itemExt.priceTotal)
+          const itemExt: NewListingExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+          listingFeed.unshift(itemExt)
+          if (listingFeed.length > maxFeedCount) listingFeed.pop()
+          setListingFeed([...listingFeed])
         })
-        if (chartVolume.length > maxChartCount) chartVolume.shift()
-        setChartVolume([...chartVolume])
-      })
-
-      marketplace.onOfferAccepted((item) => {
-        console.log('Accepted Offer\n', item)
-
-        const itemExt: OfferAcceptedExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
-        acceptedOfferFeed.unshift(itemExt)
-        if (acceptedOfferFeed.length > maxFeedCount) acceptedOfferFeed.pop()
-        setAcceptedOfferFeed([...acceptedOfferFeed])
-      })
+      } catch (error) {
+        console.warn('Failed to listen for new listings:', error)
+      }
     
-      marketplace.onNewBid((bid) => {
-        console.log('New bid\n', bid)
+      try {
+        marketplace.onSold((item) => {
+          console.log('Sold!\n', item)
 
-        const itemExt: NewBidExt = Object.assign({}, bid, {time: timeConverter(Date.now() / 1000)})
-        bidFeed.unshift(itemExt)
-        if (bidFeed.length > maxFeedCount) bidFeed.pop()
-        setBidFeed([...bidFeed])
-      })
+          const itemExt: SoldExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+          soldFeed.unshift(itemExt)
+          if (soldFeed.length > maxFeedCount) soldFeed.pop()
+          setSoldFeed([...soldFeed])
+
+          chartVolume.push({
+            time: itemExt.time,
+            volume: getBalanceNumber(itemExt.price) + (chartVolume.length ? chartVolume[chartVolume.length - 1].volume : 0),
+            id: itemExt.marketplaceId.toString(),
+            price: getBalanceNumber(itemExt.price)
+          })
+          if (chartVolume.length > maxChartCount) chartVolume.shift()
+          setChartVolume([...chartVolume])
+        })
+      } catch (error) {
+        console.warn('Failed to listen for sales:', error)
+      }
+
+      try {
+        marketplace.onOfferAccepted((item) => {
+          console.log('Accepted Offer\n', item)
+
+          const itemExt: OfferAcceptedExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+          acceptedOfferFeed.unshift(itemExt)
+          if (acceptedOfferFeed.length > maxFeedCount) acceptedOfferFeed.pop()
+          setAcceptedOfferFeed([...acceptedOfferFeed])
+        })
+      } catch (error) {
+        console.warn('Failed to listen for accepted offers:', error)
+      }
     
-      marketplace.onNewOffer((offer) => {
-        console.log('New offer\n', offer)
+      try {
+        marketplace.onNewBid((bid) => {
+          console.log('New bid\n', bid)
 
-        const itemExt: NewOfferExt = Object.assign({}, offer, {time: timeConverter(Date.now() / 1000)})
-        offerFeed.unshift(itemExt)
-        if (offerFeed.length > maxFeedCount) offerFeed.pop()
-        setOfferFeed([...offerFeed])
-      })
+          const itemExt: NewBidExt = Object.assign({}, bid, {time: timeConverter(Date.now() / 1000)})
+          bidFeed.unshift(itemExt)
+          if (bidFeed.length > maxFeedCount) bidFeed.pop()
+          setBidFeed([...bidFeed])
+        })
+      } catch (error) {
+        console.warn('Failed to listen for new bids:', error)
+      }
+    
+      try {
+        marketplace.onNewOffer((offer) => {
+          console.log('New offer\n', offer)
+
+          const itemExt: NewOfferExt = Object.assign({}, offer, {time: timeConverter(Date.now() / 1000)})
+          offerFeed.unshift(itemExt)
+          if (offerFeed.length > maxFeedCount) offerFeed.pop()
+          setOfferFeed([...offerFeed])
+        })
+      } catch (error) {
+        console.warn('Failed to listen for new offers:', error)
+      }
 
       /** Listeners currently not displayed */
-      marketplace.onDurationExtended((extension) => {
-        console.log('Auction duration extended\n', extension)
+      try {
+        marketplace.onDurationExtended((extension) => {
+          console.log('Auction duration extended\n', extension)
 
-        const itemExt: DurationExtendedExt = Object.assign({}, extension, {time: timeConverter(Date.now() / 1000)})
-        durationExtendedFeed.unshift(itemExt)
-        if (durationExtendedFeed.length > maxFeedCount) durationExtendedFeed.pop()
-        setDurationExtendedFeed([...durationExtendedFeed])
-      })
+          const itemExt: DurationExtendedExt = Object.assign({}, extension, {time: timeConverter(Date.now() / 1000)})
+          durationExtendedFeed.unshift(itemExt)
+          if (durationExtendedFeed.length > maxFeedCount) durationExtendedFeed.pop()
+          setDurationExtendedFeed([...durationExtendedFeed])
+        })
+      } catch (error) {
+        console.warn('Failed to listen for duration extensions:', error)
+      }
 
-      marketplace.onPriceUpdate((item) => {
-        console.log('Price updated\n', item)
+      try {
+        marketplace.onPriceUpdate((item) => {
+          console.log('Price updated\n', item)
     
-        const itemExt: BundlePriceUpdateExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
-        priceUpdateFeed.unshift(itemExt)
-        if (priceUpdateFeed.length > maxFeedCount) priceUpdateFeed.pop()
-        setPriceUpdateFeed([...priceUpdateFeed])
-      })
+          const itemExt: BundlePriceUpdateExt = Object.assign({}, item, {time: timeConverter(Date.now() / 1000)})
+          priceUpdateFeed.unshift(itemExt)
+          if (priceUpdateFeed.length > maxFeedCount) priceUpdateFeed.pop()
+          setPriceUpdateFeed([...priceUpdateFeed])
+        })
+      } catch (error) {
+        console.warn('Failed to listen for price updates:', error)
+      }
 
-      marketplace.onCancelled((item) => {
-        console.log('Sale Cancelled\n', item)
-      })
+      try {
+        marketplace.onCancelled((item) => {
+          console.log('Sale Cancelled\n', item)
+        })
+      } catch (error) {
+        console.warn('Failed to listen for cancelled sales:', error)
+      }
 
-      marketplace.onFinished((item) => {
-        console.log('Sale Finished\n', item)
-      })
+      try {
+        marketplace.onFinished((item) => {
+          console.log('Sale Finished\n', item)
+        })
+      } catch (error) {
+        console.warn('Failed to listen for finished sales:', error)
+      }
 
-      marketplace.onNewCollectionOffer((item) => {
-        console.log('New Collection Offer\n', item)
-      })
+      try {
+        marketplace.onNewCollectionOffer((item) => {
+          console.log('New Collection Offer\n', item)
+        })
+      } catch (error) {
+        console.warn('Failed to listen for new collection offers:', error)
+      }
 
-      marketplace.onNewFilteredCollectionOffer((item) => {
-        console.log('New Filtered Collection Offer\n', item)
-      })
+      try {
+        marketplace.onNewFilteredCollectionOffer((item) => {
+          console.log('New Filtered Collection Offer\n', item)
+        })
+      } catch (error) {
+        console.warn('Failed to listen for new filtered collection offers:', error)
+      }
 
-      marketplace.onNewListingAsBundle((item) => {
-        console.log('New Bundled Listing\n', item)
-      })
+      try {
+        marketplace.onOfferRemoved((item) => {
+          console.log('Removed Offer\n', item)
+        })
+      } catch (error) {
+        console.warn('Failed to listen for removed offers:', error)
+      }
 
-      marketplace.onNewOfferAsBundle((item) => {
-        console.log('New Bundled Offer\n', item)
-      })
-
-      marketplace.onOfferRemoved((item) => {
-        console.log('Removed Offer\n', item)
-      })
-
-      marketplace.onOfferUpdated((item) => {
-        console.log('Updated Offer\n', item)
-      })
-
-      marketplace.onSoldAsBundle((item) => {
-        console.log('Sold as Bundle\n', item)
-      })
+      try {
+        marketplace.onOfferUpdated((item) => {
+          console.log('Updated Offer\n', item)
+        })
+      } catch (error) {
+        console.warn('Failed to listen for updated offers:', error)
+      }
     }
     setInit(true)
   }, [init, listingFeed, soldFeed, priceUpdateFeed, durationExtendedFeed, bidFeed, offerFeed, chartVolume, acceptedOfferFeed])
@@ -310,35 +344,35 @@ const EventPrinter = () => {
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Collection</SpanMain>
-                    <SpanMain><a href={`${mainUrl}collections/${item.nft.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.nft.toLowerCase())}</a></SpanMain>
+                    <SpanMain><a href={`${mainUrl}collections/${item.listing.nft.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.listing.nft.toLowerCase())}</a></SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Token ID</SpanMain>
-                    <SpanMain><a href={`${mainUrl}assets/${item.nft.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
+                    <SpanMain><a href={`${mainUrl}assets/${item.listing.nft.toLowerCase()}/${item.listing.tokenId.toString()}`} target="_blank" rel="noreferrer">{item.listing.tokenId.toString()}</a></SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Type</SpanMain>
-                    <SpanMain>{item.isAuction ? 'Auction' : 'Sale'}</SpanMain>
+                    <SpanMain>{item.listing.isAuction ? 'Auction' : 'Sale'}</SpanMain>
                   </SectionRow>
                   <SectionRow>
                     <SpanMain>Duration</SpanMain>
-                    <SpanMain>{`${(item.duration.toNumber() / 3600).toLocaleString(undefined, {maximumFractionDigits: 2})}h`}</SpanMain>
+                    <SpanMain>{`${(Number(item.listing.duration) / 3600).toLocaleString(undefined, {maximumFractionDigits: 2})}h`}</SpanMain>
                   </SectionRow>
-                  {item.amount.toNumber() > 1 && (
+                  {Number(item.listing.amount) > 1 && (
                   <>
                     <SectionRow>
                       <SpanMain>Amount</SpanMain>
-                      <SpanMain>{item.amount.toString()}</SpanMain>
+                      <SpanMain>{item.listing.amount.toString()}</SpanMain>
                     </SectionRow>
                     <SectionRow>
                       <SpanMain>Unit Price</SpanMain>
-                      <SpanMain>{Number(getBalanceString(item.pricePerUnit)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
+                      <SpanMain>{Number(getBalanceString(item.listing.price)).toLocaleString(undefined, {maximumFractionDigits: 6})}</SpanMain>
                     </SectionRow>
                   </>
                   )}
                   <SectionRow>
-                    <SpanMain>{`${item.amount.toNumber() > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
-                    <SpanMain>{Number(getBalanceString(item.priceTotal)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
+                    <SpanMain>{`${Number(item.listing.amount) > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
+                    <SpanMain>{Number(getBalanceString(ethers.BigNumber.from(item.listing.price).mul(ethers.BigNumber.from(item.listing.amount)))).toLocaleString(undefined, {maximumFractionDigits: 6})}</SpanMain>
                   </SectionRow>
                   <Divider/>
                 </FeedSection>
@@ -360,14 +394,10 @@ const EventPrinter = () => {
                   <SpanMain>{item.time}</SpanMain>
                 </SectionRow>
                 <SectionRow>
-                  <SpanMain>Collection</SpanMain>
-                  <SpanMain><a href={`${mainUrl}collections/${item.nft.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.nft.toLowerCase())}</a></SpanMain>
+                  <SpanMain>Buyer</SpanMain>
+                  <SpanMain><a href={`${mainUrl}user/${item.buyer.toLowerCase()}`} target="_blank" rel="noreferrer">{short(item.buyer)}</a></SpanMain>
                 </SectionRow>
-                <SectionRow>
-                  <SpanMain>Token ID</SpanMain>
-                  <SpanMain><a href={`${mainUrl}assets/${item.nft.toLowerCase()}/${item.tokenID.toString()}`} target="_blank" rel="noreferrer">{item.tokenID.toString()}</a></SpanMain>
-                </SectionRow>
-                {item.amount.toNumber() > 1 && (
+                {Number(item.amount) > 1 && (
                   <>
                     <SectionRow>
                       <SpanMain>Amount</SpanMain>
@@ -375,13 +405,13 @@ const EventPrinter = () => {
                     </SectionRow>
                     <SectionRow>
                       <SpanMain>Unit Price</SpanMain>
-                      <SpanMain>{Number(getBalanceString(item.pricePerUnit)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
+                      <SpanMain>{Number(getBalanceString(item.price)).toLocaleString(undefined, {maximumFractionDigits: 6})}</SpanMain>
                     </SectionRow>
                   </>
                 )}
                 <SectionRow>
-                  <SpanMain>{`${item.amount.toNumber() > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
-                  <SpanMain>{Number(getBalanceString(item.priceTotal)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
+                  <SpanMain>{`${Number(item.amount) > 1 ? 'Total Price' : 'Price'}`}</SpanMain>
+                  <SpanMain>{Number(getBalanceString(ethers.BigNumber.from(item.price).mul(ethers.BigNumber.from(item.amount)))).toLocaleString(undefined, {maximumFractionDigits: 6})}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -408,7 +438,7 @@ const EventPrinter = () => {
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Price</SpanMain>
-                  <SpanMain>{Number(getBalanceString(item.bid)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
+                  <SpanMain>{Number(getBalanceString(item.bid)).toLocaleString(undefined, {maximumFractionDigits: 6})}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -435,7 +465,7 @@ const EventPrinter = () => {
                 </SectionRow>
                 <SectionRow>
                   <SpanMain>Price</SpanMain>
-                  <SpanMain>{Number(getBalanceString(item.price)).toLocaleString(undefined, {maximumFractionDigits: 2})}</SpanMain>
+                  <SpanMain>{Number(getBalanceString(item.price)).toLocaleString(undefined, {maximumFractionDigits: 6})}</SpanMain>
                 </SectionRow>
                 <Divider/>
               </FeedSection>
@@ -483,7 +513,6 @@ const EventPrinter = () => {
       </ListContainer>
       <ChartArea>
         <ChartCard volume={chartVolume} />
-        <IframeCard src="https://paintswap.finance/marketplace/fantom/globalstats?hideTable=false" width="100%" height="800px"></IframeCard>
       </ChartArea>
     </Body>
   )
